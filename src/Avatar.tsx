@@ -101,6 +101,7 @@ export default class Avatar<
     }
     if (this.props.currentMessage) {
       return (
+        // @ts-ignore
         <GiftedAvatar
           avatarStyle={
             [

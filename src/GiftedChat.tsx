@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import React, { RefObject } from 'react'
+import React from 'react'
 import {
   Animated,
   Platform,
@@ -45,6 +45,7 @@ import QuickReplies from './QuickReplies'
 const GiftedActionSheet = ActionSheet as any
 
 export interface GiftedChatProps<TMessage extends IMessage = IMessage> {
+  setCustomRef?: (ref: any) => void
   /* Messages to display */
   messages?: TMessage[]
   /* Input text; default is undefined, but if specified, it will override GiftedChat's internal state */
@@ -213,7 +214,6 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
     onLongPressAvatar: null,
     renderUsernameOnMessage: false,
     renderAvatarOnTop: false,
-    isCustomViewBottom: false,
     renderBubble: null,
     renderSystemMessage: null,
     onLongPress: null,
@@ -347,7 +347,7 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
   invertibleScrollViewProps: any = undefined
   _actionSheetRef: any = undefined
 
-  _messageContainerRef?: RefObject<MessageContainer> = React.createRef()
+  _messageContainerRef?: any = null;
   textInput?: any
 
   state = {
@@ -593,8 +593,8 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
   }
 
   scrollToBottom(animated = true) {
-    if (this._messageContainerRef && this._messageContainerRef.current) {
-      this._messageContainerRef.current.scrollTo({ offset: 0, animated })
+    if (this._messageContainerRef) {
+      this._messageContainerRef.scrollTo({ offset: 0, animated })
     }
   }
 
@@ -610,7 +610,13 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
           {...this.props}
           invertibleScrollViewProps={this.invertibleScrollViewProps}
           messages={this.getMessages()}
-          ref={this._messageContainerRef}
+          ref={(ref) => {
+            this._messageContainerRef = ref;
+
+            if (this.props.setCustomRef) {
+              this.props.setCustomRef(ref);
+            }
+          }}
         />
         {this.renderChatFooter()}
       </AnimatedView>
